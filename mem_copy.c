@@ -6,7 +6,6 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 
-
 #define SIZE 1000
 
 //PRU shared ram location
