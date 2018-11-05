@@ -9,10 +9,10 @@
 #define SIZE 1000
 
 //PRU shared ram location
-#define MEMLOC 0x4a310000
+//#define MEMLOC 0x4a310000
 
 //arbitrary location in BBB ram
-//#define MEMLOC 0xa0000000
+#define MEMLOC 0x80000000
 
 int main()
 {
@@ -32,13 +32,16 @@ int main()
 	}
 
 	//mmap our physical mem location to a virtual address
-	int *ptr = mmap(NULL, SIZE * sizeof(int), PROT_READ , MAP_SHARED, fd, MEMLOC);
+	int *ptr = mmap(NULL, SIZE * sizeof(int), PROT_READ , MAP_PRIVATE | MAP_POPULATE, fd, MEMLOC);
 	if (ptr == MAP_FAILED)
 	{
 		close(fd);
 		perror("Error mmapping the file");
 		exit(EXIT_FAILURE);
 	}
+
+	//mlock() the memory space
+	mlock(ptr, SIZE);
 
 	printf("====STARTING\n");
 	gettimeofday(&before , NULL);
@@ -57,6 +60,7 @@ int main()
 	printf("Elapsed time: %ld uSec\n", uSecs);
 	printf("Total Data: %f MB\n", data / (float)1000000);
 	printf("Data Rate: %f  MB/Second \n", dataRate / (float)1000000);
+	printf("Image[1-3] = %x, %x, %x\n", image[0], image[1], image[2]);
 
 	//unmap memory
 	munmap(ptr, SIZE);
